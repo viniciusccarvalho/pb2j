@@ -12,18 +12,18 @@ import java.io.File;
 import java.io.IOException;
 
 @Singleton
-public class ArtifactService {
+public class ResourceService {
 
 	@Inject
 	@Client("https://cdn.jsdelivr.net")
 	RxHttpClient client;
 
-	private final File artifactFolder = new File(System.getProperty("user.home"), ".pb2j/artifacts");
+	private final File resourceFolder = new File(System.getProperty("user.home"), ".pb2j");
 
 	public File fetchResource(String resource) throws IOException {
-		File target = new File(artifactFolder, resource);
+		File target = new File(resourceFolder, resource);
 		if(!target.exists()){
-			byte[] data = client.retrieve(HttpRequest.GET(""), byte[].class).blockingFirst();
+			byte[] data = client.retrieve(HttpRequest.GET("/gh/viniciusccarvalho/pb2j/"+resource), byte[].class).blockingFirst();
 			FileUtils.copy(new ByteArrayInputStream(data), target);
 		}
 		return target;

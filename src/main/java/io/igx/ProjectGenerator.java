@@ -1,8 +1,6 @@
 package io.igx;
 
-import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
-import com.github.mustachejava.MustacheFactory;
 import io.igx.util.CopyFileVisitor;
 import io.igx.util.FileUtils;
 
@@ -15,23 +13,17 @@ import java.util.*;
 @Singleton
 public class ProjectGenerator {
 
-	private final MustacheFactory mf = new DefaultMustacheFactory();
-	private List<Mustache> templates = new LinkedList<>();
 
 
+	private final ResourceService resourceService;
+	private final TemplateService templateService;
 
-	private void initTemplates() throws Exception {
-		templates.add(mf.compile(new InputStreamReader(ProjectGenerator.class.getClassLoader().getResourceAsStream("artifacts/templates/build.gradle.mustache")), "build.gradle"));
+	public ProjectGenerator(ResourceService resourceService, TemplateService templateService) {
+		this.resourceService = resourceService;
+		this.templateService = templateService;
 	}
 
 	public void visit(File protoFolder) throws IOException {
-		if(templates.isEmpty()){
-			try {
-				initTemplates();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
 		String projectName = protoFolder.getName();
 		File projectFolder = new File(protoFolder, "java-project");
 		if(projectFolder.exists()){
@@ -55,17 +47,14 @@ public class ProjectGenerator {
 	private void prepareGradle(File projectFolder, String projectName) throws IOException {
 		File wrapperFolder = new File(projectFolder, "gradle/wrapper");
 		wrapperFolder.mkdirs();
-		FileUtils.copy("artifacts/gradlew", new File(projectFolder, "gradlew"));
-		FileUtils.copy("artifacts/gradle/wrapper/gradle-wrapper.bin", new File(wrapperFolder, "gradle-wrapper.jar"));
-		FileUtils.copy("artifacts/gradle/wrapper/gradle-wrapper.properties", new File(wrapperFolder, "gradle-wrapper.properties"));
+		FileUtils.copy(new FileInputStream(resourceService.fetchResource("artifacts/gradlew")), new File(projectFolder, "gradlew"));
+		FileUtils.copy(new FileInputStream(resourceService.fetchResource("artifacts/gradle/wrapper/gradle-wrapper.bin")), new File(wrapperFolder, "gradle-wrapper.jar"));
+		FileUtils.copy(new FileInputStream(resourceService.fetchResource("artifacts/gradle/wrapper/gradle-wrapper.properties")), new File(wrapperFolder, "gradle-wrapper.properties"));
 		Map<String, Object> context = new HashMap<>();
 		context.put("projectName", projectName);
 		context.put("group", "com.example");
-		for(Mustache m : templates) {
-			FileWriter writer = new FileWriter(new File(projectFolder, m.getName()));
-			m.execute(writer, context);
-			writer.flush();
-		}
+		templateService.writeTemplate("build.gradle", context, new File(projectFolder, "build.gradle"));
+		templateService.writeTemplate("gradle.properties", context, new File(projectFolder, "gradle.properties"));
 		FileUtils.writeToFile("rootProject.name="+projectName, new File(projectFolder, "settings.gradle"));
 	}
 
