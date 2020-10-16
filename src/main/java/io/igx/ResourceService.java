@@ -15,7 +15,7 @@ import java.io.IOException;
 public class ResourceService {
 
 	@Inject
-	@Client("https://cdn.jsdelivr.net")
+	@Client("https://raw.githubusercontent.com")
 	RxHttpClient client;
 
 	private final File resourceFolder = new File(System.getProperty("user.home"), ".pb2j");
@@ -23,7 +23,7 @@ public class ResourceService {
 	public File fetchResource(String resource) throws IOException {
 		File target = new File(resourceFolder, resource);
 		if(!target.exists()){
-			byte[] data = client.retrieve(HttpRequest.GET("/gh/viniciusccarvalho/pb2j/"+resource), byte[].class).blockingFirst();
+			byte[] data = client.retrieve(HttpRequest.GET("/viniciusccarvalho/pb2j/main/"+resource), byte[].class).blockingFirst();
 			FileUtils.copy(new ByteArrayInputStream(data), target);
 		}
 		return target;
