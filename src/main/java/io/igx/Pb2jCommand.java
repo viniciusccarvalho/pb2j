@@ -40,7 +40,6 @@ public class Pb2jCommand implements Runnable {
             try {
                 projectGenerator.visit(protoFolder);
                 if(!CollectionUtils.isEmpty(parameters)) {
-
                     List<String> commands = new LinkedList<>();
                     commands.add("./gradlew");
                     commands.add("-Dorg.gradle.daemon.debug=true");
@@ -52,7 +51,6 @@ public class Pb2jCommand implements Runnable {
                     InputStreamReader isr = new InputStreamReader(is);
                     BufferedReader br = new BufferedReader(isr);
                     String line;
-                    System.out.println("Output of running");
                     while ((line = br.readLine()) != null) {
                         System.out.println(line);
                     }

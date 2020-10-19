@@ -31,7 +31,7 @@ public class TemplateService {
 		templates.put("gradle.properties", mf.compile(new FileReader(resourceService.fetchResource("templates/gradle.properties.mustache")), "gradle.properties"));
 		templates.put("settings.gradle", mf.compile(new FileReader(resourceService.fetchResource("templates/settings.gradle.mustache")), "settings.gradle"));
 	}
-	
+
 	public void writeTemplate(String templateName, Map<String, Object> context, File target) throws IOException {
 		Mustache m = templates.get(templateName);
 		FileWriter writer = new FileWriter(target);
