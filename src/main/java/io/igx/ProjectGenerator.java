@@ -47,15 +47,17 @@ public class ProjectGenerator {
 	private void prepareGradle(File projectFolder, String projectName) throws IOException {
 		File wrapperFolder = new File(projectFolder, "gradle/wrapper");
 		wrapperFolder.mkdirs();
-		FileUtils.copy(new FileInputStream(resourceService.fetchResource("artifacts/gradlew")), new File(projectFolder, "gradlew"));
-		FileUtils.copy(new FileInputStream(resourceService.fetchResource("artifacts/gradle/wrapper/gradle-wrapper.bin")), new File(wrapperFolder, "gradle-wrapper.jar"));
+		File gradlew = new File(projectFolder, "gradlew");
+		FileUtils.copy(new FileInputStream(resourceService.fetchResource("artifacts/gradlew")), gradlew);
+		gradlew.setExecutable(true, false);
+		FileUtils.copy(new FileInputStream(resourceService.fetchResource("artifacts/gradle/wrapper/gradle-wrapper.jar")), new File(wrapperFolder, "gradle-wrapper.jar"));
 		FileUtils.copy(new FileInputStream(resourceService.fetchResource("artifacts/gradle/wrapper/gradle-wrapper.properties")), new File(wrapperFolder, "gradle-wrapper.properties"));
 		Map<String, Object> context = new HashMap<>();
 		context.put("projectName", projectName);
 		context.put("group", "com.example");
 		templateService.writeTemplate("build.gradle", context, new File(projectFolder, "build.gradle"));
 		templateService.writeTemplate("gradle.properties", context, new File(projectFolder, "gradle.properties"));
-		FileUtils.writeToFile("rootProject.name="+projectName, new File(projectFolder, "settings.gradle"));
+		templateService.writeTemplate("settings.gradle", context, new File(projectFolder, "settings.gradle"));
 	}
 
 
