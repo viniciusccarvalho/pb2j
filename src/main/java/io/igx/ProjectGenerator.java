@@ -1,6 +1,5 @@
 package io.igx;
 
-import com.github.mustachejava.Mustache;
 import io.igx.util.CopyFileVisitor;
 import io.igx.util.FileUtils;
 
@@ -45,13 +44,6 @@ public class ProjectGenerator {
 	}
 
 	private void prepareGradle(File projectFolder, String projectName) throws IOException {
-		File wrapperFolder = new File(projectFolder, "gradle/wrapper");
-		wrapperFolder.mkdirs();
-		File gradlew = new File(projectFolder, "gradlew");
-		FileUtils.copy(new FileInputStream(resourceService.fetchResource("artifacts/gradlew")), gradlew);
-		gradlew.setExecutable(true, false);
-		FileUtils.copy(new FileInputStream(resourceService.fetchResource("artifacts/gradle/wrapper/gradle-wrapper.jar")), new File(wrapperFolder, "gradle-wrapper.jar"));
-		FileUtils.copy(new FileInputStream(resourceService.fetchResource("artifacts/gradle/wrapper/gradle-wrapper.properties")), new File(wrapperFolder, "gradle-wrapper.properties"));
 		Map<String, Object> context = new HashMap<>();
 		context.put("projectName", projectName);
 		context.put("group", "com.example");

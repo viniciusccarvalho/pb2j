@@ -3,6 +3,8 @@ package io.igx;
 import io.micronaut.configuration.picocli.PicocliRunner;
 
 import io.micronaut.core.util.CollectionUtils;
+import org.gradle.tooling.GradleConnector;
+import org.gradle.tooling.ProjectConnection;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -39,25 +41,18 @@ public class Pb2jCommand implements Runnable {
         for(File protoFolder : inputDir.listFiles((dir, name) -> dir.isDirectory())) {
             try {
                 projectGenerator.visit(protoFolder);
-                if(!CollectionUtils.isEmpty(parameters)) {
-                    List<String> commands = new LinkedList<>();
-                    commands.add("./gradlew");
-                    commands.add("-Dorg.gradle.daemon.debug=true");
-                    commands.addAll(parameters);
-                    ProcessBuilder processBuilder = new ProcessBuilder(commands);
-                    processBuilder.directory(new File(protoFolder, "java-project"));
-                    Process process = processBuilder.start();
-                    InputStream is = process.getInputStream();
-                    InputStreamReader isr = new InputStreamReader(is);
-                    BufferedReader br = new BufferedReader(isr);
-                    String line;
-                    while ((line = br.readLine()) != null) {
-                        System.out.println(line);
-                    }
-                    int exitCode = process.waitFor();
-                }
-            } catch (IOException | InterruptedException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
+            }
+            if(!CollectionUtils.isEmpty(parameters)) {
+                ProjectConnection connection = GradleConnector.newConnector()
+                        .forProjectDirectory(new File(protoFolder, "java-project"))
+                        .connect();
+                try {
+                    connection.newBuild().forTasks("build").run();
+                } finally {
+                    connection.close();
+                }
             }
         }
     }
@@ -67,10 +62,10 @@ public class Pb2jCommand implements Runnable {
         File init = new File(System.getProperty("user.home"), ".pb2j");
         configFolders.add(init);
         configFolders.add(new File(init, "config"));
-        configFolders.add(new File(init, "artifacts/gradle/wrapper"));
         configFolders.add(new File(init, "templates"));
         for(File f : configFolders){
             if(!f.exists()){
+                System.out.println("Creating folder: " + f.getPath());
                 f.mkdirs();
             }
         }

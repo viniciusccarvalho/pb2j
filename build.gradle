@@ -7,6 +7,7 @@ version "0.1"
 group "io.igx"
 
 repositories {
+    maven { url 'https://repo.gradle.org/gradle/libs-releases' }
     mavenCentral()
     jcenter()
 }
@@ -30,6 +31,7 @@ dependencies {
     implementation("javax.annotation:javax.annotation-api")
     implementation("com.github.spullara.mustache.java:compiler:0.8.18")
     implementation("io.micronaut:micronaut-http-client")
+    implementation "org.gradle:gradle-tooling-api:6.7-rc-1"
     runtimeOnly("ch.qos.logback:logback-classic")
 
 }

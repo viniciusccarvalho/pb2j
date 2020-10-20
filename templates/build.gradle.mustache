@@ -26,6 +26,17 @@ java {
     targetCompatibility = JavaVersion.toVersion('11')
 }
 
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        mavenLocal()
+    }
+}
+
 protobuf {
     protoc { artifact = "com.google.protobuf:protoc:3.13.0" }
     plugins {

@@ -3,8 +3,8 @@ package io.igx;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
+import io.micronaut.core.util.CollectionUtils;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Singleton;
 import java.io.File;
 import java.io.FileReader;
@@ -25,7 +25,6 @@ public class TemplateService {
 		this.resourceService = resourceService;
 	}
 
-	@PostConstruct
 	public void setup() throws IOException {
 		templates.put("build.gradle", mf.compile(new FileReader(resourceService.fetchResource("templates/build.gradle.mustache")), "build.gradle"));
 		templates.put("gradle.properties", mf.compile(new FileReader(resourceService.fetchResource("templates/gradle.properties.mustache")), "gradle.properties"));
@@ -33,6 +32,9 @@ public class TemplateService {
 	}
 
 	public void writeTemplate(String templateName, Map<String, Object> context, File target) throws IOException {
+		if(CollectionUtils.isEmpty(templates)) {
+			setup();
+		}
 		Mustache m = templates.get(templateName);
 		FileWriter writer = new FileWriter(target);
 		m.execute(writer, context);
